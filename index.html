@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>ダーツゲーム</title>
+
+
+<style>
+
+/* ========================================
+   基本設定
+======================================== */
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Noto Sans JP",
+    sans-serif;
+
+  background:#f5f6f8;
+  color:#222;
+}
+
+button,
+select{
+  font-family:inherit;
+}
+
+
+/* ========================================
+   全体
+======================================== */
+
+.container{
+
+  width:min(
+    1100px,
+    calc(100% - 32px)
+  );
+
+  margin:auto;
+
+  padding:
+    28px 0
+    48px;
+}
+
+h1{
+
+  margin:
+    0 0 28px;
+
+  text-align:center;
+
+  font-size:
+    clamp(
+      28px,
+      5vw,
+      42px
+    );
+}
+
+h2{
+
+  margin:
+    0 0 20px;
+
+  font-size:22px;
+
+  text-align:center;
+}
+
+
+/* ========================================
+   ページ
+======================================== */
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+
+/* ========================================
+   カード
+======================================== */
+
+.card{
+
+  background:#fff;
+
+  border-radius:16px;
+
+  padding:22px;
+
+  box-shadow:
+    0 4px 18px
+    rgba(0,0,0,.07);
+}
+
+
+/* ========================================
+   ボード選択
+======================================== */
+
+.board-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:20px;
+}
+
+.board-card{
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:14px;
+}
+
+.board-name{
+
+  margin:0;
+
+  font-size:24px;
+
+  font-weight:800;
+}
+
+.board-image{
+
+  width:100%;
+
+  aspect-ratio:1 / 1;
+
+  object-fit:contain;
+
+  border-radius:12px;
+
+  background:#f0f2f5;
+
+  border:1px solid #e1e3e6;
+}
+
+.board-image-placeholder{
+
+  width:100%;
+
+  aspect-ratio:1 / 1;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  text-align:center;
+
+  padding:20px;
+
+  border-radius:12px;
+
+  background:#f0f2f5;
+
+  border:1px solid #e1e3e6;
+
+  color:#777;
+
+  font-size:14px;
+
+  line-height:1.6;
+}
+
+
+/* ========================================
+   ボタン
+======================================== */
+
+button{
+
+  width:100%;
+
+  min-height:54px;
+
+  border:0;
+
+  border-radius:10px;
+
+  font-size:18px;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+  transition:
+    transform .1s,
+    background .15s;
+}
+
+button:active{
+
+  transform:scale(.98);
+}
+
+.play-button{
+
+  background:#222;
+
+  color:#fff;
+}
+
+.play-button:hover{
+
+  background:#000;
+}
+
+.confirm-button{
+
+  margin-top:24px;
+
+  background:#222;
+
+  color:#fff;
+}
+
+.reset-button{
+
+  margin-top:20px;
+
+  background:#e8eaed;
+
+  color:#222;
+}
+
+.reset-button:hover{
+
+  background:#dcdfe3;
+}
+
+
+/* ========================================
+   投擲入力
+======================================== */
+
+.selected-board{
+
+  margin-bottom:24px;
+
+  text-align:center;
+
+  font-size:18px;
+
+  font-weight:700;
+
+  color:#555;
+}
+
+.throw-list{
+
+  display:grid;
+
+  gap:14px;
+}
+
+.throw-row{
+
+  display:grid;
+
+  grid-template-columns:
+    100px 1fr;
+
+  align-items:center;
+
+  gap:12px;
+}
+
+.throw-label{
+
+  font-weight:800;
+
+  font-size:17px;
+}
+
+select{
+
+  width:100%;
+
+  min-height:52px;
+
+  padding:
+    8px 12px;
+
+  border:
+    1px solid
+    #cfd3d8;
+
+  border-radius:10px;
+
+  background:#fff;
+
+  font-size:18px;
+}
+
+select:focus{
+
+  outline:none;
+
+  border-color:#222;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(0,0,0,.08);
+}
+
+
+/* ========================================
+   結果
+======================================== */
+
+.result-card{
+
+  text-align:center;
+}
+
+.result-label{
+
+  margin-bottom:8px;
+
+  color:#666;
+
+  font-weight:700;
+
+  font-size:16px;
+}
+
+.total-score{
+
+  margin-bottom:32px;
+
+  font-size:
+    clamp(
+      36px,
+      8vw,
+      64px
+    );
+
+  font-weight:900;
+}
+
+.lottery-result{
+
+  margin:
+    0 auto 32px;
+
+  padding:20px;
+
+  border-radius:14px;
+
+  background:#f0f2f5;
+
+  font-size:
+    clamp(
+      28px,
+      7vw,
+      46px
+    );
+
+  font-weight:900;
+}
+
+.result-detail{
+
+  margin-top:24px;
+
+  text-align:left;
+
+  border-top:
+    1px solid
+    #e2e4e7;
+
+  padding-top:18px;
+}
+
+.result-detail-row{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:12px;
+
+  padding:9px 0;
+
+  border-bottom:
+    1px solid
+    #eee;
+}
+
+.result-detail-row:last-child{
+
+  border-bottom:0;
+}
+
+
+/* ========================================
+   エラー表示
+======================================== */
+
+.error{
+
+  margin-top:12px;
+
+  color:#c62828;
+
+  font-weight:700;
+
+  text-align:center;
+}
+
+
+/* ========================================
+   スマホ対応
+======================================== */
+
+@media(max-width:700px){
+
+  .container{
+
+    width:
+      min(
+        100% - 20px,
+        600px
+      );
+
+    padding-top:18px;
+  }
+
+  .board-grid{
+
+    grid-template-columns:1fr;
+  }
+
+  .board-card{
+
+    padding:16px;
+  }
+
+  .throw-row{
+
+    grid-template-columns:1fr;
+
+    gap:6px;
+  }
+
+  .throw-label{
+
+    font-size:16px;
+  }
+
+  .card{
+
+    padding:16px;
+
+    border-radius:14px;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- ==================================================
+     ページ1：ボード選択
+================================================== -->
+
+<section
+  id="boardPage"
+  class="page active"
+>
+
+  <h1>ダーツゲーム</h1>
+
+  <div class="card">
+
+    <h2>ダーツボードを選択</h2>
+
+    <div
+      id="boardGrid"
+      class="board-grid"
+    >
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     ページ2：投擲入力
+================================================== -->
+
+<section
+  id="throwPage"
+  class="page"
+>
+
+  <h1>投擲結果</h1>
+
+  <div class="card">
+
+    <div
+      id="selectedBoardText"
+      class="selected-board"
+    >
+    </div>
+
+    <div
+      id="throwList"
+      class="throw-list"
+    >
+    </div>
+
+    <div
+      id="throwError"
+      class="error"
+    >
+    </div>
+
+    <button
+      id="confirmButton"
+      class="confirm-button"
+    >
+      確定
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     ページ3：結果
+================================================== -->
+
+<section
+  id="resultPage"
+  class="page"
+>
+
+  <h1>ゲーム結果</h1>
+
+  <div class="card result-card">
+
+    <div class="result-label">
+      合計得点
+    </div>
+
+    <div
+      id="totalScore"
+      class="total-score"
+    >
+      0点
+    </div>
+
+
+    <div class="result-label">
+      あなたが引くのは
+    </div>
+
+    <div
+      id="lotteryResult"
+      class="lottery-result"
+    >
+      -
+    </div>
+
+
+    <div
+      id="resultDetail"
+      class="result-detail"
+    >
+    </div>
+
+
+    <button
+      id="resetButton"
+      class="reset-button"
+    >
+      ゲームリセット
+    </button>
+
+  </div>
+
+</section>
+
+
+</div>
+
+
+
+<script>
+
+
+/* ==================================================
+   ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+   ★
+   ★  ゲーム設定
+   ★
+   ★  後からゲーム内容を変更するときは
+   ★  基本的にここだけ変更する
+   ★
+   ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+================================================== */
+
+
+/* ==================================================
+   ① くじA / くじBの判定基準
+================================================== */
+
+/*
+ * ここには
+ *
+ * 「何点以上ならくじAになるか」
+ *
+ * の基準点を入力してください。
+ *
+ * 例：
+ *
+ * const THRESHOLD_SCORE = 20;
+ *
+ * とした場合
+ *
+ * 20点以上 → くじA
+ * 20点未満 → くじB
+ */
+
+const THRESHOLD_SCORE = 0;
+
+
+/* ==================================================
+   ② ボードLの設定
+================================================== */
+
+/*
+ * 「記号名」 : 「得点」
+ *
+ * の形式で設定してください。
+ *
+ * 例：
+ *
+ * "トマト": 5
+ *
+ * → Lボードでトマトに当たると5点
+ *
+ *
+ * ※この得点はLボード専用です。
+ * M・Nに同じ「トマト」があっても
+ * Lの5点は共有されません。
+ */
+
+const BOARD_L_SCORES = {
+
+  // ↓ここにLボードの記号と得点を設定
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
+
+};
+
+
+/* ==================================================
+   ③ ボードMの設定
+================================================== */
+
+/*
+ * Mボード専用の得点表です。
+ *
+ * Lボードとは完全に独立しています。
+ */
+
+const BOARD_M_SCORES = {
+
+  // ↓ここにMボードの記号と得点を設定
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
+
+};
+
+
+/* ==================================================
+   ④ ボードNの設定
+================================================== */
+
+/*
+ * Nボード専用の得点表です。
+ *
+ * L・Mボードとは完全に独立しています。
+ */
+
+const BOARD_N_SCORES = {
+
+  // ↓ここにNボードの記号と得点を設定
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
+
+};
+
+
+/* ==================================================
+   ⑤ ボード画像の設定
+================================================== */
+
+/*
+ * ここには各ボード画像のURLを設定します。
+ *
+ * 例えばGitHubに
+ *
+ * images/board-L.png
+ *
+ * を置いた場合、その画像のURLを設定します。
+ *
+ *
+ * GitHub上のMarkdownなら、
+ *
+ * ![Lボード](画像URL)
+ *
+ * と書く画像と同じURLです。
+ *
+ *
+ * alt：
+ *   画像が表示できなかった場合などに使われる
+ *   画像の説明
+ *
+ * url：
+ *   実際の画像URL
+ */
+
+const BOARD_IMAGES = {
+
+  L: {
+    alt: "Lボード",
+    url: ""
+  },
+
+  M: {
+    alt: "Mボード",
+    url: ""
+  },
+
+  N: {
+    alt: "Nボード",
+    url: ""
+  }
+
+};
+
+
+/* ==================================================
+   ★ 設定ここまで
+================================================== */
+
+
+
+/* ==================================================
+   ボード情報
+================================================== */
+
+/*
+ * ボード名と得点表をここで対応させる。
+ *
+ * 得点表そのものは上の設定欄にあるため、
+ * 後から変更する必要は基本的にない。
+ */
+
+const BOARDS = {
+
+  L: {
+    name: "L",
+    scores: BOARD_L_SCORES
+  },
+
+  M: {
+    name: "M",
+    scores: BOARD_M_SCORES
+  },
+
+  N: {
+    name: "N",
+    scores: BOARD_N_SCORES
+  }
+
+};
+
+
+
+/* ==================================================
+   ゲーム中のデータ
+================================================== */
+
+/*
+ * selectedBoard
+ *
+ * 現在選択しているボード。
+ *
+ * L / M / N のいずれかが入る。
+ */
+
+let selectedBoard = null;
+
+
+/*
+ * throwResults
+ *
+ * 1投目～6投目で選択した記号を保存する。
+ *
+ * 例：
+ *
+ * [
+ *   "トマト",
+ *   "イカ",
+ *   "❌",
+ *   "星",
+ *   "トマト",
+ *   "イカ"
+ * ]
+ */
+
+let throwResults = [];
+
+
+
+/* ==================================================
+   HTML要素取得
+================================================== */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+
+/* ==================================================
+   ページ切り替え
+================================================== */
+
+function showPage(pageId){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove("active");
+
+    });
+
+
+  $(pageId).classList.add("active");
+
+}
+
+
+
+/* ==================================================
+   ボード選択画面生成
+================================================== */
+
+function renderBoardPage(){
+
+  const boardGrid =
+    $("boardGrid");
+
+
+  boardGrid.innerHTML = "";
+
+
+  Object.keys(BOARDS).forEach(boardId => {
+
+    const board =
+      BOARDS[boardId];
+
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "board-card";
+
+
+    const title =
+      document.createElement("h3");
+
+    title.className =
+      "board-name";
+
+    title.textContent =
+      board.name;
+
+
+    /*
+     * 画像URLが設定されている場合は画像を表示。
+     *
+     * URLがまだ空の場合は
+     * 「画像URL未設定」と表示する。
+     */
+
+    let imageArea;
+
+
+    if(
+      BOARD_IMAGES[boardId] &&
+      BOARD_IMAGES[boardId].url
+    ){
+
+      const image =
+        document.createElement("img");
+
+      image.className =
+        "board-image";
+
+      image.src =
+        BOARD_IMAGES[boardId].url;
+
+      image.alt =
+        BOARD_IMAGES[boardId].alt;
+
+
+      imageArea =
+        image;
+
+    }else{
+
+      const placeholder =
+        document.createElement("div");
+
+      placeholder.className =
+        "board-image-placeholder";
+
+      placeholder.textContent =
+        `${boardId}ボード画像\n\n` +
+        `設定欄の\n` +
+        `BOARD_IMAGES.${boardId}.url\n` +
+        `に画像URLを設定してください。`;
+
+
+      imageArea =
+        placeholder;
+
+    }
+
+
+    /*
+     * Playボタン
+     */
+
+    const playButton =
+      document.createElement("button");
+
+    playButton.className =
+      "play-button";
+
+    playButton.textContent =
+      "Play";
+
+
+    playButton.addEventListener(
+      "click",
+      () => {
+
+        startGame(boardId);
+
+      }
+    );
+
+
+    card.appendChild(title);
+
+    card.appendChild(imageArea);
+
+    card.appendChild(playButton);
+
+    boardGrid.appendChild(card);
+
+  });
+
+}
+
+
+
+/* ==================================================
+   ゲーム開始
+================================================== */
+
+function startGame(boardId){
+
+  selectedBoard =
+    boardId;
+
+
+  /*
+   * 新しいゲームを開始するので
+   * 投擲結果を空にする。
+   */
+
+  throwResults = [];
+
+
+  renderThrowPage();
+
+
+  showPage("throwPage");
+
+}
+
+
+
+/* ==================================================
+   投擲入力画面生成
+================================================== */
+
+function renderThrowPage(){
+
+  const board =
+    BOARDS[selectedBoard];
+
+
+  $("selectedBoardText").textContent =
+    `選択中のボード：${board.name}`;
+
+
+  const throwList =
+    $("throwList");
+
+
+  throwList.innerHTML = "";
+
+
+  $("throwError").textContent =
+    "";
+
+
+  /*
+   * このボードの記号一覧
+   */
+
+  const symbols =
+    Object.keys(board.scores);
+
+
+  /*
+   * ❌は必ず選択肢として追加する。
+   *
+   * ❌は0点として処理する。
+   */
+
+  const options =
+    [
+      ...symbols,
+      "❌"
+    ];
+
+
+  /*
+   * 1投目～6投目を生成
+   */
+
+  for(
+    let i = 0;
+    i < 6;
+    i++
+  ){
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "throw-row";
+
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "throw-label";
+
+    label.textContent =
+      `${i + 1}投目`;
+
+
+    const select =
+      document.createElement("select");
+
+    select.dataset.throwIndex =
+      i;
+
+
+    /*
+     * 初期選択肢
+     */
+
+    const defaultOption =
+      document.createElement("option");
+
+    defaultOption.value =
+      "";
+
+    defaultOption.textContent =
+      "選択してください";
+
+    defaultOption.disabled =
+      true;
+
+    defaultOption.selected =
+      true;
+
+    select.appendChild(
+      defaultOption
+    );
+
+
+    /*
+     * 記号を選択肢として追加
+     */
+
+    options.forEach(symbol => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        symbol;
+
+      option.textContent =
+        symbol;
+
+      select.appendChild(option);
+
+    });
+
+
+    row.appendChild(label);
+
+    row.appendChild(select);
+
+    throwList.appendChild(row);
+
+  }
+
+}
+
+
+
+/* ==================================================
+   6投の確定
+================================================== */
+
+function confirmThrows(){
+
+  const selects =
+    document.querySelectorAll(
+      "#throwList select"
+    );
+
+
+  const results = [];
+
+
+  /*
+   * 6投すべて入力されているか確認
+   */
+
+  for(
+    let i = 0;
+    i < selects.length;
+    i++
+  ){
+
+    const value =
+      selects[i].value;
+
+
+    if(!value){
+
+      $("throwError").textContent =
+        `${i + 1}投目の結果を選択してください。`;
+
+      selects[i].focus();
+
+      return;
+
+    }
+
+
+    results.push(value);
+
+  }
+
+
+  /*
+   * 入力内容を保存
+   */
+
+  throwResults =
+    results;
+
+
+  /*
+   * 結果計算
+   */
+
+  calculateResult();
+
+}
+
+
+
+/* ==================================================
+   得点計算
+================================================== */
+
+function calculateResult(){
+
+  const board =
+    BOARDS[selectedBoard];
+
+
+  let totalScore =
+    0;
+
+
+  /*
+   * 各投の得点を計算
+   */
+
+  const throwScores =
+    throwResults.map(symbol => {
+
+      /*
+       * ❌は0点
+       */
+
+      if(symbol === "❌"){
+
+        return 0;
+
+      }
+
+
+      /*
+       * 選択したボードの得点表だけを参照。
+       */
+
+      const score =
+        Number(
+          board.scores[symbol]
+        );
+
+
+      /*
+       * 念のため不正な値の場合は0点
+       */
+
+      if(
+        !Number.isFinite(score)
+      ){
+
+        return 0;
+
+      }
+
+
+      return score;
+
+    });
+
+
+  /*
+   * 6投分を合計
+   */
+
+  totalScore =
+    throwScores.reduce(
+      (sum, score) =>
+        sum + score,
+      0
+    );
+
+
+  /*
+   * くじ判定
+   *
+   * 基準点以上 → A
+   * 基準点未満 → B
+   */
+
+  const lottery =
+    totalScore >= THRESHOLD_SCORE
+      ? "くじA"
+      : "くじB";
+
+
+  renderResult(
+    totalScore,
+    lottery,
+    throwScores
+  );
+
+
+  showPage("resultPage");
+
+}
+
+
+
+/* ==================================================
+   結果画面
+================================================== */
+
+function renderResult(
+  totalScore,
+  lottery,
+  throwScores
+){
+
+  $("totalScore").textContent =
+    `${totalScore.toLocaleString("ja-JP")}点`;
+
+
+  $("lotteryResult").textContent =
+    lottery;
+
+
+  /*
+   * 1投ごとの結果を表示
+   */
+
+  const detail =
+    $("resultDetail");
+
+
+  detail.innerHTML = "";
+
+
+  throwResults.forEach(
+    (symbol,index) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "result-detail-row";
+
+
+      const symbolText =
+        document.createElement("span");
+
+      symbolText.textContent =
+        `${index + 1}投目：${symbol}`;
+
+
+      const scoreText =
+        document.createElement("strong");
+
+      scoreText.textContent =
+        `${throwScores[index]}点`;
+
+
+      row.appendChild(symbolText);
+
+      row.appendChild(scoreText);
+
+      detail.appendChild(row);
+
+    }
+  );
+
+}
+
+
+
+/* ==================================================
+   ゲームリセット
+================================================== */
+
+function resetGame(){
+
+  /*
+   * ゲーム中に保存していた情報を削除
+   */
+
+  selectedBoard =
+    null;
+
+  throwResults =
+    [];
+
+
+  /*
+   * 投擲画面の内容も消しておく。
+   */
+
+  $("throwList").innerHTML = "";
+
+  $("throwError").textContent = "";
+
+  $("resultDetail").innerHTML = "";
+
+
+  /*
+   * 最初のボード選択画面へ戻る。
+   */
+
+  showPage("boardPage");
+
+}
+
+
+
+/* ==================================================
+   ボタンイベント
+================================================== */
+
+$("confirmButton")
+  .addEventListener(
+    "click",
+    confirmThrows
+  );
+
+
+$("resetButton")
+  .addEventListener(
+    "click",
+    resetGame
+  );
+
+
+
+/* ==================================================
+   初期表示
+================================================== */
+
+renderBoardPage();
+
+
+</script>
+
+</body>
+
+  </html>
