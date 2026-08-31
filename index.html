@@ -25,6 +25,7 @@
 
 body{
   margin:0;
+
   font-family:
     system-ui,
     -apple-system,
@@ -33,6 +34,7 @@ body{
     sans-serif;
 
   background:#f5f6f8;
+
   color:#222;
 }
 
@@ -125,8 +127,11 @@ h2{
 
   display:grid;
 
+  /*
+   * PCでは4枚を横並びにする。
+   */
   grid-template-columns:
-    repeat(3,1fr);
+    repeat(4,1fr);
 
   gap:20px;
 }
@@ -193,6 +198,8 @@ h2{
   font-size:14px;
 
   line-height:1.6;
+
+  white-space:pre-line;
 }
 
 
@@ -443,7 +450,26 @@ select:focus{
 
 
 /* ========================================
-   スマホ対応
+   タブレット
+======================================== */
+
+@media(
+  min-width:701px
+) and (
+  max-width:900px
+){
+
+  .board-grid{
+
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+}
+
+
+/* ========================================
+   スマホ
 ======================================== */
 
 @media(max-width:700px){
@@ -459,15 +485,21 @@ select:focus{
     padding-top:18px;
   }
 
+
   .board-grid{
 
+    /*
+     * スマホでは4枚を縦に並べる。
+     */
     grid-template-columns:1fr;
   }
+
 
   .board-card{
 
     padding:16px;
   }
+
 
   .throw-row{
 
@@ -476,10 +508,12 @@ select:focus{
     gap:6px;
   }
 
+
   .throw-label{
 
     font-size:16px;
   }
+
 
   .card{
 
@@ -502,7 +536,8 @@ select:focus{
 
 
 <!-- ==================================================
-     ページ1：ボード選択
+     ページ1
+     ボード選択
 ================================================== -->
 
 <section
@@ -529,7 +564,8 @@ select:focus{
 
 
 <!-- ==================================================
-     ページ2：投擲入力
+     ページ2
+     投擲入力
 ================================================== -->
 
 <section
@@ -547,17 +583,20 @@ select:focus{
     >
     </div>
 
+
     <div
       id="throwList"
       class="throw-list"
     >
     </div>
 
+
     <div
       id="throwError"
       class="error"
     >
     </div>
+
 
     <button
       id="confirmButton"
@@ -573,7 +612,8 @@ select:focus{
 
 
 <!-- ==================================================
-     ページ3：結果
+     ページ3
+     結果
 ================================================== -->
 
 <section
@@ -585,9 +625,11 @@ select:focus{
 
   <div class="card result-card">
 
+
     <div class="result-label">
       合計得点
     </div>
+
 
     <div
       id="totalScore"
@@ -600,6 +642,7 @@ select:focus{
     <div class="result-label">
       あなたが引くのは
     </div>
+
 
     <div
       id="lotteryResult"
@@ -641,7 +684,7 @@ select:focus{
    ★  ゲーム設定
    ★
    ★  後からゲーム内容を変更するときは
-   ★  基本的にここだけ変更する
+   ★  基本的にここを変更する。
    ★
    ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 ================================================== */
@@ -668,11 +711,12 @@ select:focus{
  * 20点未満 → くじB
  */
 
-const THRESHOLD_SCORE = 700;
+const THRESHOLD_SCORE = 0;
+
 
 
 /* ==================================================
-   ② ボードLの設定
+   ② ボードLの得点表
 ================================================== */
 
 /*
@@ -684,24 +728,75 @@ const THRESHOLD_SCORE = 700;
  *
  * "トマト": 5
  *
- * → Lボードでトマトに当たると5点
+ * → Lボードでトマトに当たると5点。
  *
  *
- * ※この得点はLボード専用です。
- * M・Nに同じ「トマト」があっても
- * Lの5点は共有されません。
+ * Lボード専用の得点表です。
+ *
+ * M・N・Oに同じ記号があっても
+ * 得点は共有されません。
  */
 
 const BOARD_L_SCORES = {
 
   // ↓ここにLボードの記号と得点を設定
-  "チーズ": 2,
-  "トマト": 2,
-  "バジル": 3
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
 
 };
 
-  const BOARD_O_SCORES = {
+
+
+/* ==================================================
+   ③ ボードMの得点表
+================================================== */
+
+/*
+ * Mボード専用の得点表。
+ */
+
+const BOARD_M_SCORES = {
+
+  // ↓ここにMボードの記号と得点を設定
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
+
+};
+
+
+
+/* ==================================================
+   ④ ボードNの得点表
+================================================== */
+
+/*
+ * Nボード専用の得点表。
+ */
+
+const BOARD_N_SCORES = {
+
+  // ↓ここにNボードの記号と得点を設定
+  "記号1": 0,
+  "記号2": 0,
+  "記号3": 0
+
+};
+
+
+
+/* ==================================================
+   ⑤ ボードOの得点表
+================================================== */
+
+/*
+ * Oボード専用の得点表。
+ *
+ * L・M・Nとは完全に独立しています。
+ */
+
+const BOARD_O_SCORES = {
 
   // ↓ここにOボードの記号と得点を設定
   "記号1": 0,
@@ -711,100 +806,55 @@ const BOARD_L_SCORES = {
 };
 
 
+
 /* ==================================================
-   ③ ボードMの設定
+   ⑥ ボード画像
 ================================================== */
 
 /*
- * Mボード専用の得点表です。
+ * 各ボードの画像URLを設定してください。
  *
- * Lボードとは完全に独立しています。
- */
-
-const BOARD_M_SCORES = {
-
-  // ↓ここにMボードの記号と得点を設定
-  "エビ": 2,
-  "ホタテ": 2,
-  "イカ": 3
-
-};
-
-
-/* ==================================================
-   ④ ボードNの設定
-================================================== */
-
-/*
- * Nボード専用の得点表です。
- *
- * L・Mボードとは完全に独立しています。
- */
-
-const BOARD_N_SCORES = {
-
-  // ↓ここにNボードの記号と得点を設定
-  "チーズ": 3,
-
-
-};
-
-
-/* ==================================================
-   ⑤ ボード画像の設定
-================================================== */
-
-/*
- * ここには各ボード画像のURLを設定します。
- *
- * 例えばGitHubに
- *
- * images/board-L.png
- *
- * を置いた場合、その画像のURLを設定します。
- *
- *
- * GitHub上のMarkdownなら、
+ * GitHub上のMarkdownで、
  *
  * ![Lボード](画像URL)
  *
- * と書く画像と同じURLです。
+ * の「画像URL」に入れるものと同じURLです。
  *
  *
  * alt：
- *   画像が表示できなかった場合などに使われる
- *   画像の説明
+ * 画像の説明
  *
  * url：
- *   実際の画像URL
+ * 実際の画像URL
  */
 
 const BOARD_IMAGES = {
 
   L: {
     alt: "Lボード",
-    url: "https://d.kuku.lu/vcd483bza"
+    url: ""
   },
 
   M: {
     alt: "Mボード",
-    url: "https://d.kuku.lu/ks86f66z7"
+    url: ""
   },
 
   N: {
     alt: "Nボード",
-    url: "https://d.kuku.lu/fmw7zccwf"
+    url: ""
+  },
+
+  O: {
+    alt: "Oボード",
+    url: ""
   }
 
-  o: {
-  alt: "Oボード",
-  url: ""
-}
 };
 
 
 /* ==================================================
-   ★ 設定ここまで
+   ★ ゲーム設定ここまで
 ================================================== */
 
 
@@ -814,27 +864,29 @@ const BOARD_IMAGES = {
 ================================================== */
 
 /*
- * ボード名と得点表をここで対応させる。
- *
- * 得点表そのものは上の設定欄にあるため、
- * 後から変更する必要は基本的にない。
+ * 各ボードと、それぞれの得点表を対応させる。
  */
 
 const BOARDS = {
 
   L: {
-    name: "マルゲリータ",
+    name: "L",
     scores: BOARD_L_SCORES
   },
 
   M: {
-    name: "シーフード",
+    name: "M",
     scores: BOARD_M_SCORES
   },
 
   N: {
-    name: "クワトロフォルマッジ",
+    name: "N",
     scores: BOARD_N_SCORES
+  },
+
+  O: {
+    name: "O",
+    scores: BOARD_O_SCORES
   }
 
 };
@@ -846,31 +898,16 @@ const BOARDS = {
 ================================================== */
 
 /*
- * selectedBoard
+ * 現在選択されているボード。
  *
- * 現在選択しているボード。
- *
- * L / M / N のいずれかが入る。
+ * L / M / N / O のいずれか。
  */
 
 let selectedBoard = null;
 
 
 /*
- * throwResults
- *
- * 1投目～6投目で選択した記号を保存する。
- *
- * 例：
- *
- * [
- *   "トマト",
- *   "イカ",
- *   "❌",
- *   "星",
- *   "トマト",
- *   "イカ"
- * ]
+ * 1投目～6投目の結果。
  */
 
 let throwResults = [];
@@ -920,6 +957,11 @@ function renderBoardPage(){
   boardGrid.innerHTML = "";
 
 
+  /*
+   * BOARDSに登録されている
+   * L/M/N/Oを自動的に生成する。
+   */
+
   Object.keys(BOARDS).forEach(boardId => {
 
     const board =
@@ -933,6 +975,10 @@ function renderBoardPage(){
       "board-card";
 
 
+    /*
+     * ボード名
+     */
+
     const title =
       document.createElement("h3");
 
@@ -944,10 +990,7 @@ function renderBoardPage(){
 
 
     /*
-     * 画像URLが設定されている場合は画像を表示。
-     *
-     * URLがまだ空の場合は
-     * 「画像URL未設定」と表示する。
+     * ボード画像
      */
 
     let imageArea;
@@ -976,6 +1019,10 @@ function renderBoardPage(){
 
     }else{
 
+      /*
+       * 画像URL未設定の場合。
+       */
+
       const placeholder =
         document.createElement("div");
 
@@ -984,7 +1031,6 @@ function renderBoardPage(){
 
       placeholder.textContent =
         `${boardId}ボード画像\n\n` +
-        `設定欄の\n` +
         `BOARD_IMAGES.${boardId}.url\n` +
         `に画像URLを設定してください。`;
 
@@ -1044,8 +1090,8 @@ function startGame(boardId){
 
 
   /*
-   * 新しいゲームを開始するので
-   * 投擲結果を空にする。
+   * 新しいゲームなので
+   * これまでの投擲結果を空にする。
    */
 
   throwResults = [];
@@ -1086,7 +1132,7 @@ function renderThrowPage(){
 
 
   /*
-   * このボードの記号一覧
+   * 選択したボードの記号を取得。
    */
 
   const symbols =
@@ -1094,9 +1140,9 @@ function renderThrowPage(){
 
 
   /*
-   * ❌は必ず選択肢として追加する。
+   * ❌は全ボード共通で必ず追加。
    *
-   * ❌は0点として処理する。
+   * ❌ = 0点。
    */
 
   const options =
@@ -1107,7 +1153,7 @@ function renderThrowPage(){
 
 
   /*
-   * 1投目～6投目を生成
+   * 1投目～6投目を作成。
    */
 
   for(
@@ -1141,7 +1187,7 @@ function renderThrowPage(){
 
 
     /*
-     * 初期選択肢
+     * 「選択してください」
      */
 
     const defaultOption =
@@ -1165,7 +1211,7 @@ function renderThrowPage(){
 
 
     /*
-     * 記号を選択肢として追加
+     * 記号を選択肢に追加。
      */
 
     options.forEach(symbol => {
@@ -1212,7 +1258,7 @@ function confirmThrows(){
 
 
   /*
-   * 6投すべて入力されているか確認
+   * 6投すべて選択されているか確認。
    */
 
   for(
@@ -1243,7 +1289,7 @@ function confirmThrows(){
 
 
   /*
-   * 入力内容を保存
+   * 入力結果を保存。
    */
 
   throwResults =
@@ -1251,7 +1297,7 @@ function confirmThrows(){
 
 
   /*
-   * 結果計算
+   * 結果を計算。
    */
 
   calculateResult();
@@ -1270,19 +1316,15 @@ function calculateResult(){
     BOARDS[selectedBoard];
 
 
-  let totalScore =
-    0;
-
-
   /*
-   * 各投の得点を計算
+   * 各投の得点を計算。
    */
 
   const throwScores =
     throwResults.map(symbol => {
 
       /*
-       * ❌は0点
+       * ❌は0点。
        */
 
       if(symbol === "❌"){
@@ -1293,7 +1335,8 @@ function calculateResult(){
 
 
       /*
-       * 選択したボードの得点表だけを参照。
+       * 現在選択中のボードの
+       * 得点表だけを参照。
        */
 
       const score =
@@ -1303,7 +1346,7 @@ function calculateResult(){
 
 
       /*
-       * 念のため不正な値の場合は0点
+       * 数値として正常でない場合は0点。
        */
 
       if(
@@ -1321,10 +1364,10 @@ function calculateResult(){
 
 
   /*
-   * 6投分を合計
+   * 6投分を合計。
    */
 
-  totalScore =
+  const totalScore =
     throwScores.reduce(
       (sum, score) =>
         sum + score,
@@ -1333,10 +1376,10 @@ function calculateResult(){
 
 
   /*
-   * くじ判定
+   * くじ判定。
    *
-   * 基準点以上 → A
-   * 基準点未満 → B
+   * 基準点以上 → くじA
+   * 基準点未満 → くじB
    */
 
   const lottery =
@@ -1344,6 +1387,10 @@ function calculateResult(){
       ? "くじA"
       : "くじB";
 
+
+  /*
+   * 結果画面を作る。
+   */
 
   renderResult(
     totalScore,
@@ -1368,16 +1415,24 @@ function renderResult(
   throwScores
 ){
 
+  /*
+   * 合計得点。
+   */
+
   $("totalScore").textContent =
     `${totalScore.toLocaleString("ja-JP")}点`;
 
+
+  /*
+   * くじA / くじB。
+   */
 
   $("lotteryResult").textContent =
     lottery;
 
 
   /*
-   * 1投ごとの結果を表示
+   * 各投の結果。
    */
 
   const detail =
@@ -1431,18 +1486,23 @@ function renderResult(
 function resetGame(){
 
   /*
-   * ゲーム中に保存していた情報を削除
+   * 選択中のボードを消去。
    */
 
   selectedBoard =
     null;
+
+
+  /*
+   * 投擲結果を消去。
+   */
 
   throwResults =
     [];
 
 
   /*
-   * 投擲画面の内容も消しておく。
+   * 投擲画面の内容も消去。
    */
 
   $("throwList").innerHTML = "";
@@ -1492,4 +1552,4 @@ renderBoardPage();
 
 </body>
 
-  </html>
+</html>
